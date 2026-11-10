@@ -1,0 +1,18 @@
+# Personenbezogene Daten: niemals einchecken
+data/input/
+data/*.db
+data/fehlerbericht*.md
+*.xlsx
+*.xls
+*.csv.bak
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor / System
+.vscode/
+.idea/
+.DS_Store
