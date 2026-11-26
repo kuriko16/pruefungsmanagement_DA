@@ -12,6 +12,8 @@ Import-Prototyp (Startpunkt für Julian), der die eduFLOW-Anmeldedateien einlies
 | `backend/import_anmeldungen.py` | Liest die Anmelde-Excel, prüft sie (Regeln R01 bis R13), schreibt in die Datenbank und erstellt ein Fehlerprotokoll |
 | `data/input/` | Hier die Excel-Dateien ablegen. **Nicht ins Repository einchecken** (personenbezogene Daten) |
 | `docs/` | Platz für Analyse, ER-Diagramm, User Stories. Enthält `user_stories.csv` (48 Anforderungen) und `github-setup.md` (Anleitung für Repository und Project) |
+| `webapp/` | Weboberfläche (Flask): Dashboard, Kandidat:innen, Zuweisung, Noten, Import, Export. Anleitung: `docs/oberflaeche.md` |
+| `tools/demodaten.py` | Erzeugt erfundene Anmeldedateien im eduFLOW-Format für Demo und Tests |
 | `tools/create_github_issues.py` | Legt Labels, Meilensteine und Issues aus `docs/user_stories.csv` in GitHub an (zuerst Probelauf) |
 
 ## Ausprobieren
@@ -48,8 +50,8 @@ Datensätze mit Schwere „Fehler" werden nicht importiert, alle anderen schon.
 
 ## Bekannte Lücken
 
-- Prüfer, Beisitzer und Noten (MP, GN) sind im Schema vorgesehen, werden aber noch nicht gefüllt. Beim erneuten Import würden sie aktuell überschrieben, das muss vor dem echten Einsatz geändert werden.
+- Prüfer, Beisitzer, Prüfungstage und Noten werden über die Weboberfläche gepflegt und bleiben bei erneutem Import erhalten.
 - Betreuer*innen werden nur als Text gespeichert, noch nicht mit den Lehrpersonen-Stammdaten verknüpft.
 - Der Import der Diplomarbeitsdaten aus den separaten Excel-Dateien und der Noten fehlt noch.
-- Noch keine Oberfläche, kein Docker. Die Technik-Entscheidung steht noch aus.
+- Weboberfläche (MVP) und Docker-Start: siehe `docs/oberflaeche.md`.
 - Das Prüfungsjahr wird per Parameter angegeben, die Beispieldateien stammen aus dem Anmeldezeitraum November 2025.

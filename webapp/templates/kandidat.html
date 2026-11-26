@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block titel %}{{ a.nachname }} {{ a.vorname }}{% endblock %}
+{% block inhalt %}
+<p><a href="{{ url_for('kandidaten', klasse=a.klasse_id) }}">← zurück zur Liste</a></p>
+<h1>{{ a.vorname }} {{ a.nachname }} <span class="leise">· {{ a.klasse }} · {{ a.klausurart }}</span></h1>
+
+{% for m in meldungen %}
+  <div class="meldung" style="background:#fffaeb"><span class="chip {{ m.schwere }}">{{ m.schwere }} {{ m.regel }}</span> {{ m.text }}</div>
+{% endfor %}
+
+{# Ein Formular für alles: Stammdaten, Betreuung und alle Prüfungen werden mit einem Klick gespeichert #}
+<form method="post">
+  <div class="karte">
+    <h2 style="margin-top:0">Stammdaten</h2>
+    <div class="formular">
+      <label>Nachname<input name="nachname" value="{{ a.nachname }}" required></label>
+      <label>Vorname<input name="vorname" value="{{ a.vorname }}" required></label>
+      <label>Geburtsdatum<input type="date" name="geburtsdatum" value="{{ a.geburtsdatum or '' }}"></label>
+      <label>E-Mail<input type="email" name="email" value="{{ a.email or '' }}"></label>
+      <label>Personen-ID (Sokrates)<input value="{{ a.personen_id }}" disabled></label>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h2 style="margin-top:0">Diplomarbeit</h2>
+    {% if a.da_id %}
+    <div class="formular">
+      <label style="grid-column: span 2">Titel<input value="{{ a.da_titel }}" disabled></label>
+      <label>Betreuer:in laut eduFLOW<input value="{{ a.betreuer_text or '' }}" disabled></label>
+      <label>Betreuer:in (Stammdaten)<select name="betreuer_id"><option value="">– bitte wählen –</option>
+        {% for l in lehrpersonen %}<option value="{{ l.id }}" {{ 'selected' if l.id == a.betreuer_id }}>{{ l.nachname }} {{ l.vorname }}</option>{% endfor %}</select></label>
+    </div>
+    <p class="leise">Die Betreuung gilt für die ganze Gruppe dieser Diplomarbeit.</p>
+    {% else %}<p class="leise">Keine Diplomarbeit eingetragen.</p>{% endif %}
+  </div>
+
+  <div class="karte">
+    <h2 style="margin-top:0">Prüfungen, Zuweisung und Noten</h2>
+    <table>
+      <tr><th>Art</th><th>Fach</th><th>Prüfer:in</th><th>Beisitz</th><th>Prüfungstag</th><th>JN</th><th>MP</th><th>GN</th></tr>
+      {% for f in faecher %}
+      {# Feldnamen enthalten die id des Prüfungsfachs, damit der Server weiß, welche Zeile gemeint ist #}
+      <tr>
+        <td>{{ 'schriftlich' if f.art == 'schriftlich' else 'mündlich' }}</td>
+        <td><b>{{ f.fach }}</b></td>
+        <td class="{{ 'fehlt' if not f.pruefer_id }}"><select name="pruefer_{{ f.id }}"><option value="">–</option>
+          {% for l in lehrpersonen %}<option value="{{ l.id }}" {{ 'selected' if l.id == f.pruefer_id }}>{{ l.nachname }} {{ l.vorname }}</option>{% endfor %}</select></td>
+        <td class="{{ 'fehlt' if f.art == 'muendlich' and not f.beisitz_id }}">
+          {% if f.art == 'muendlich' %}<select name="beisitz_{{ f.id }}"><option value="">–</option>
+          {% for l in lehrpersonen %}<option value="{{ l.id }}" {{ 'selected' if l.id == f.beisitz_id }}>{{ l.nachname }} {{ l.vorname }}</option>{% endfor %}</select>
+          {% else %}<span class="leise">–</span>{% endif %}</td>
+        <td class="{{ 'fehlt' if not f.pruefungstag }}"><input type="date" name="tag_{{ f.id }}" value="{{ f.pruefungstag or '' }}"></td>
+        {% for n in ['note_jn','note_mp','note_gn'] %}
+        <td class="{{ 'fehlt' if n == 'note_mp' and f[n] is none }}"><input class="note" type="number" min="1" max="5" step="1" name="{{ n }}_{{ f.id }}" value="{{ '%g' % f[n] if f[n] is not none else '' }}"></td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+    <p class="leise">JN = Jahresnote, MP = Note der Prüfung, GN = Gesamtnote. MP und GN werden bewusst manuell eingetragen (UE-06); die Berechnungsformel wird noch mit Herrn Angerer erhoben (SB-06).</p>
+  </div>
+  <button>Speichern</button>
+</form>
+
+<form method="post" action="{{ url_for('kandidat_loeschen', anmeldung_id=a.id) }}" style="margin-top:28px"
+      onsubmit="return confirm('Anmeldung von {{ a.vorname }} {{ a.nachname }} wirklich löschen?')">
+  <button class="gefahr">Anmeldung löschen</button>
+</form>
+{% endblock %}

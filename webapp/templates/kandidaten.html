@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block titel %}Kandidat:innen{% endblock %}
+{% block inhalt %}
+<h1>Kandidat:innen</h1>
+{# GET-Formular: Filter landen in der URL, dadurch kann man eine gefilterte Ansicht auch verlinken #}
+<form class="filter" method="get">
+  <label>Suche (Name oder Personen-ID)<input name="q" value="{{ filter.q }}" placeholder="z. B. Huber" autofocus></label>
+  <label>Klasse<select name="klasse"><option value="">alle</option>
+    {% for k in klassen %}<option value="{{ k.id }}" {{ 'selected' if filter.klasse == k.id|string }}>{{ k.name }}</option>{% endfor %}</select></label>
+  <label>Fach<select name="fach"><option value="">alle</option>
+    {% for f in faecher %}<option {{ 'selected' if filter.fach == f }}>{{ f }}</option>{% endfor %}</select></label>
+  <label>Lehrperson (Prüfer:in/Beisitz)<select name="lehrer"><option value="">alle</option>
+    {% for l in lehrpersonen %}<option value="{{ l.id }}" {{ 'selected' if filter.lehrer == l.id|string }}>{{ l.nachname }} {{ l.vorname }}</option>{% endfor %}</select></label>
+  <label style="flex-direction:row; align-items:center"><input type="checkbox" name="offen" value="1" {{ 'checked' if filter.offen }}> nur mit offenen Punkten</label>
+  <button>Filtern</button> <a class="knopf zweit" href="{{ url_for('kandidaten') }}">Zurücksetzen</a>
+</form>
+<p class="leise">{{ zeilen|length }} Treffer</p>
+<table>
+  <tr><th>Klasse</th><th>Nachname</th><th>Vorname</th><th>Personen-ID</th><th>Klausurart</th><th>Diplomarbeit</th><th>Zuweisung</th><th>Noten</th></tr>
+  {% for z in zeilen %}
+  <tr>
+    <td>{{ z.klasse }}</td>
+    <td><a href="{{ url_for('kandidat_detail', anmeldung_id=z.id) }}"><b>{{ z.nachname }}</b></a></td>
+    <td>{{ z.vorname }}</td>
+    <td class="leise">{{ z.personen_id }}</td>
+    <td>{{ z.anzahl_schriftlich }} schr. / {{ z.anzahl_muendlich }} mdl.</td>
+    <td class="leise">{{ (z.da_titel or '–')|truncate(45) }}</td>
+    <td>{% if z.offen_zuweisung %}<span class="chip offen">{{ z.offen_zuweisung }} offen</span>{% else %}<span class="chip ok">vollständig</span>{% endif %}</td>
+    <td>{% if z.offen_noten %}<span class="chip offen">{{ z.offen_noten }} fehlen</span>{% else %}<span class="chip ok">vollständig</span>{% endif %}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="8" class="leise">Keine Treffer.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

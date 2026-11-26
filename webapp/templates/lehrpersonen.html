@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titel %}Lehrpersonen{% endblock %}
+{% block inhalt %}
+<h1>Lehrpersonen (Stammdaten)</h1>
+<div class="karte">
+  <form method="post" class="filter" style="margin:0">
+    <input type="hidden" name="aktion" value="neu">
+    <label>Nachname<input name="nachname" required></label>
+    <label>Vorname<input name="vorname" required></label>
+    <label>Kürzel<input name="kuerzel" size="6"></label>
+    <button>Hinzufügen</button>
+  </form>
+</div>
+<table>
+  <tr><th>Nachname</th><th>Vorname</th><th>Kürzel</th><th>als Prüfer:in</th><th>als Beisitz</th><th>Status</th><th></th></tr>
+  {% for l in liste %}
+  <tr style="{{ 'opacity:.55' if not l.aktiv }}">
+    <td><b>{{ l.nachname }}</b></td><td>{{ l.vorname }}</td><td>{{ l.kuerzel or '' }}</td>
+    <td>{{ l.als_pruefer }}</td><td>{{ l.als_beisitz }}</td>
+    <td>{% if l.aktiv %}<span class="chip ok">aktiv</span>{% else %}<span class="chip offen">inaktiv</span>{% endif %}</td>
+    <td class="zeile">
+      <form method="post"><input type="hidden" name="aktion" value="umschalten"><input type="hidden" name="id" value="{{ l.id }}">
+        <button class="zweit">{{ 'deaktivieren' if l.aktiv else 'aktivieren' }}</button></form>
+      <form method="post" onsubmit="return confirm('Lehrperson löschen?')"><input type="hidden" name="aktion" value="loeschen"><input type="hidden" name="id" value="{{ l.id }}">
+        <button class="gefahr">löschen</button></form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="leise">Inaktive Lehrpersonen erscheinen nicht mehr in den Auswahllisten, alte Zuweisungen bleiben erhalten.</p>
+{% endblock %}

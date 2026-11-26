@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titel %}Dashboard{% endblock %}
+{% block inhalt %}
+<h1>Stand Prüfungsjahr {{ jahr or '–' }}</h1>
+{% if not klassen %}
+  <div class="karte">Noch keine Daten. Über <a href="{{ url_for('import_seite') }}">Import</a> die eduFLOW-Anmeldungen einlesen.</div>
+{% else %}
+<div class="kacheln">
+  <div class="kachel"><div class="zahl">{{ gesamt.kandidaten }}</div><div class="text">Kandidat:innen</div></div>
+  <div class="kachel"><div class="zahl">{{ gesamt.pruefungen }}</div><div class="text">Prüfungen gesamt</div></div>
+  <div class="kachel {{ 'warn' if gesamt.ohne_pruefer }}"><div class="zahl">{{ gesamt.ohne_pruefer }}</div><div class="text">ohne Prüfer:in</div></div>
+  <div class="kachel {{ 'warn' if gesamt.ohne_beisitz }}"><div class="zahl">{{ gesamt.ohne_beisitz }}</div><div class="text">mündlich ohne Beisitz</div></div>
+  <div class="kachel {{ 'warn' if gesamt.ohne_tag }}"><div class="zahl">{{ gesamt.ohne_tag }}</div><div class="text">ohne Prüfungstag</div></div>
+  <div class="kachel {{ 'warn' if gesamt.ohne_note }}"><div class="zahl">{{ gesamt.ohne_note }}</div><div class="text">ohne Note</div></div>
+</div>
+
+<h2>Stand pro Klasse</h2>
+<table>
+  <tr><th>Klasse</th><th>Schwerpunkt</th><th>Kandidat:innen</th><th>Prüfungen</th><th>ohne Prüfer:in</th><th>ohne Beisitz</th><th>ohne Tag</th><th>ohne Note</th><th>Fortschritt</th><th></th></tr>
+  {% for k in klassen %}
+  <tr>
+    <td><b>{{ k.name }}</b></td><td>{{ k.schwerpunkt or '' }}</td><td>{{ k.kandidaten }}</td><td>{{ k.pruefungen }}</td>
+    {% for s in ['ohne_pruefer','ohne_beisitz','ohne_tag','ohne_note'] %}
+      <td>{% if k[s] %}<span class="chip offen">{{ k[s] }}</span>{% else %}<span class="chip ok">✓</span>{% endif %}</td>
+    {% endfor %}
+    <td><span class="balken"><span style="width: {{ k.prozent }}%"></span></span> {{ k.prozent }} %</td>
+    <td><a href="{{ url_for('zuweisung', klasse=k.id) }}">zuweisen</a> · <a href="{{ url_for('kandidaten', klasse=k.id, offen=1) }}">offene</a></td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div class="zeile" style="align-items:flex-start; gap:18px; margin-top:18px">
+  <div class="karte" style="flex:1; min-width:300px">
+    <h2 style="margin-top:0">Notenverteilung (Prüfungsnoten)</h2>
+    {% set maxi = (verteilung | map(attribute=1) | max) or 1 %}
+    {% for note, anzahl in verteilung %}
+      <div class="zeile" style="margin:6px 0"><span style="width:20px"><b>{{ note }}</b></span>
+        <span class="balken" style="width:260px"><span style="width: {{ 100 * anzahl / maxi }}%; background:{{ '#b42318' if note == 5 else '#1f4e79' }}"></span></span>
+        <span class="leise">{{ anzahl }}</span></div>
+    {% endfor %}
+  </div>
+  <div class="karte" style="flex:1; min-width:300px">
+    <h2 style="margin-top:0">Letzte Importe</h2>
+    {% for i in importe %}
+      <div style="margin:6px 0">{{ i.datei }} <span class="leise">· {{ i.zeitpunkt.replace('T',' ') }} · {{ i.zeilen_importiert }}/{{ i.zeilen_gelesen }} importiert</span>
+        {% if i.fehler %}<span class="chip FEHLER">{{ i.fehler }} Fehler</span>{% endif %}
+        {% if i.warnungen %}<span class="chip WARNUNG">{{ i.warnungen }} Warnungen</span>{% endif %}</div>
+    {% else %}<span class="leise">Noch kein Import.</span>{% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
