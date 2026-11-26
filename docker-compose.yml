@@ -1,0 +1,9 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data      # Datenbank liegt auf dem eigenen Rechner, nicht im Container
+    environment:
+      - DEMO=1                # für den echten Einsatz auf 0 setzen

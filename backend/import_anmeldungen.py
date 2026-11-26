@@ -189,13 +189,23 @@ def import_rows(con, rows, meldungen, klasse, jahr):
              clean(r.get("Kenntnisnahme nächster Termin")), clean(r.get("Verbindliche Anmeldung"))))
         anm_id = cur.execute("SELECT id FROM anmeldung WHERE personen_id=? AND klasse_id=?", (pid, klasse_id)).fetchone()[0]
 
-        # Faecher neu schreiben (idempotent). Manuell gepflegte Spalten (Pruefer, Noten) gehen dabei
-        # verloren, daher in der echten Version nur fehlende Faecher ergaenzen.
-        cur.execute("DELETE FROM pruefungsfach WHERE anmeldung_id=?", (anm_id,))
-        for feld, wert in r.items():
-            if feld and (feld.startswith("PS_") or feld.startswith("PM_")) and clean(wert):
+        # Faecher abgleichen statt neu schreiben: Manuell gepflegte Spalten (Pruefer, Beisitz,
+        # Pruefungstag, Noten) bleiben erhalten, wenn dieselbe Datei nochmal importiert wird.
+        neue_faecher = {feld: clean(wert) for feld, wert in r.items()
+                        if feld and (feld.startswith("PS_") or feld.startswith("PM_")) and clean(wert)}
+        vorhanden = {feld: (fid, fach) for fid, feld, fach in cur.execute(
+            "SELECT id, feld, fach FROM pruefungsfach WHERE anmeldung_id=?", (anm_id,)).fetchall()}
+        for feld, (fid, fach) in vorhanden.items():
+            if feld not in neue_faecher:
+                cur.execute("DELETE FROM pruefungsfach WHERE id=?", (fid,))      # Fach abgewaehlt
+            elif neue_faecher[feld] != fach:
+                # Anderes Fach im selben Feld (z. B. anderes Wahlfach): Zuweisungen passen nicht mehr
+                cur.execute("UPDATE pruefungsfach SET fach=?, pruefer_id=NULL, beisitz_id=NULL WHERE id=?",
+                            (neue_faecher[feld], fid))
+        for feld, fach in neue_faecher.items():
+            if feld not in vorhanden:
                 cur.execute("INSERT INTO pruefungsfach(anmeldung_id, art, feld, fach) VALUES (?,?,?,?)",
-                            (anm_id, "schriftlich" if feld.startswith("PS_") else "muendlich", feld, clean(wert)))
+                            (anm_id, "schriftlich" if feld.startswith("PS_") else "muendlich", feld, fach))
 
         titel = clean(r.get("Titel der Diplomarbeit:"))
         if titel:
@@ -206,6 +216,30 @@ def import_rows(con, rows, meldungen, klasse, jahr):
                         (anm_id, da_id))
         imported += 1
     return imported
+
+
+def klasse_aus_dateiname(dateiname):
+    """Klasse aus dem Dateinamen holen, z. B. '... HWI 5BHWII.xlsx' oder 'Anmeldung_5BHWII.xlsx'."""
+    treffer = re.findall(r"[1-5][A-Z]{3,}", Path(dateiname).stem)
+    return treffer[-1] if treffer else Path(dateiname).stem.split("_")[-1]
+
+
+def importiere_datei(con, datei, jahr, anzeigename=None):
+    """Eine Anmeldedatei pruefen, importieren und protokollieren (wird auch von der Weboberflaeche genutzt)."""
+    name = anzeigename or Path(datei).name
+    klasse = klasse_aus_dateiname(name)
+    wb = openpyxl.load_workbook(datei, data_only=True)
+    rows = read_sheet(wb, SHEET)
+    check_rows = read_sheet(wb, CHECK_SHEET) if CHECK_SHEET in wb.sheetnames else []
+    meldungen = validate(rows, klasse, check_rows)
+    importiert = import_rows(con, rows, meldungen, klasse, jahr)
+    con.execute("INSERT INTO import_lauf(datei, zeitpunkt, zeilen_gelesen, zeilen_importiert) VALUES (?,?,?,?)",
+                (name, dt.datetime.now().isoformat(timespec="seconds"), len(rows), importiert))
+    lauf_id = con.execute("SELECT last_insert_rowid()").fetchone()[0]
+    con.executemany("INSERT INTO import_meldung(import_lauf_id, schwere, regel, personen_id, text) VALUES (?,?,?,?,?)",
+                    [(lauf_id, m.schwere, m.regel, m.personen_id, m.text) for m in meldungen])
+    con.commit()
+    return len(rows), importiert, meldungen
 
 
 def write_report(path, results):
@@ -237,19 +271,8 @@ def main():
     con.executescript((Path(__file__).parent / "schema.sql").read_text(encoding="utf-8"))
     results = []
     for datei in args.dateien:
-        klasse = Path(datei).stem.split("_")[-1]
-        wb = openpyxl.load_workbook(datei, data_only=True)
-        rows = read_sheet(wb, SHEET)
-        check_rows = read_sheet(wb, CHECK_SHEET) if CHECK_SHEET in wb.sheetnames else []
-        meldungen = validate(rows, klasse, check_rows)
-        importiert = import_rows(con, rows, meldungen, klasse, args.jahr)
-        con.execute("INSERT INTO import_lauf(datei, zeitpunkt, zeilen_gelesen, zeilen_importiert) VALUES (?,?,?,?)",
-                    (Path(datei).name, dt.datetime.now().isoformat(timespec="seconds"), len(rows), importiert))
-        lauf_id = con.execute("SELECT last_insert_rowid()").fetchone()[0]
-        con.executemany("INSERT INTO import_meldung(import_lauf_id, schwere, regel, personen_id, text) VALUES (?,?,?,?,?)",
-                        [(lauf_id, m.schwere, m.regel, m.personen_id, m.text) for m in meldungen])
-        con.commit()
-        results.append((Path(datei).name, len(rows), importiert, meldungen))
+        gelesen, importiert, meldungen = importiere_datei(con, datei, args.jahr)
+        results.append((Path(datei).name, gelesen, importiert, meldungen))
         zaehler = collections.Counter(m.schwere for m in meldungen)
         print(f"{Path(datei).name}: {len(rows)} gelesen, {importiert} importiert, "
               f"{zaehler['FEHLER']} Fehler, {zaehler['WARNUNG']} Warnungen, {zaehler['HINWEIS']} Hinweise")

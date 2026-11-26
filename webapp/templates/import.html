@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titel %}Import{% endblock %}
+{% block inhalt %}
+<h1>Anmeldungen aus eduFLOW importieren</h1>
+<div class="karte">
+  {# enctype ist nötig, damit der Browser Dateien mitschickt #}
+  <form method="post" enctype="multipart/form-data" class="filter" style="margin:0">
+    <label>Prüfungsjahr<input name="jahr" value="{{ vorschlag }}" required pattern="\d{4}/\d{2}" size="8"></label>
+    <label>Anmeldedateien (.xlsx, mehrere möglich)<input type="file" name="dateien" accept=".xlsx" multiple required></label>
+    <button>Importieren</button>
+  </form>
+  <p class="leise">Es wird der bestehende Import mit den Prüfregeln R01–R13 verwendet. Datensätze mit FEHLER werden nicht übernommen.
+  Ein erneuter Import aktualisiert die Daten, bereits eingetragene Prüfer:innen, Tage und Noten bleiben erhalten.</p>
+</div>
+
+{% for e in ergebnisse %}
+<div class="karte">
+  <h2 style="margin-top:0">{{ e.datei }}</h2>
+  {% if e.abbruch %}
+    <div class="meldung fehler">Datei konnte nicht gelesen werden: {{ e.abbruch }}</div>
+  {% else %}
+    <p><b>{{ e.importiert }}</b> von {{ e.gelesen }} Zeilen importiert ·
+      <span class="chip FEHLER">{{ e.zaehler.FEHLER }} Fehler</span>
+      <span class="chip WARNUNG">{{ e.zaehler.WARNUNG }} Warnungen</span>
+      <span class="chip HINWEIS">{{ e.zaehler.HINWEIS }} Hinweise</span></p>
+    {% if e.meldungen %}
+    <table>
+      <tr><th>Schwere</th><th>Regel</th><th>Personen-ID</th><th>Meldung</th></tr>
+      {% for m in e.meldungen|sort(attribute='schwere') %}
+      <tr><td><span class="chip {{ m.schwere }}">{{ m.schwere }}</span></td><td>{{ m.regel }}</td><td class="leise">{{ m.personen_id or '–' }}</td><td>{{ m.text }}</td></tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+  {% endif %}
+</div>
+{% endfor %}
+{% if ergebnisse %}<a class="knopf" href="{{ url_for('dashboard') }}">Zum Dashboard</a>{% endif %}
+{% endblock %}

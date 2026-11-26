@@ -1,0 +1,40 @@
+/* Schlichtes Layout: Navigationsleiste oben, Inhalt mittig, Tabellen gut lesbar */
+:root { --blau:#1f4e79; --hell:#eef3f8; --rand:#d5dde6; --rot:#b42318; --gelb:#b54708; --gruen:#067647; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui, "Segoe UI", Arial, sans-serif; font-size:15px; color:#1d2733; background:#f6f8fa; }
+header { background: var(--blau); color:#fff; display:flex; align-items:center; gap:24px; padding:0 24px; height:56px; }
+header .logo { font-weight:700; font-size:17px; }
+header nav a { color:#dbe7f3; text-decoration:none; margin-right:18px; }
+header nav a.aktiv, header nav a:hover { color:#fff; border-bottom:2px solid #fff; padding-bottom:3px; }
+header form { margin-left:auto; }
+header select { padding:4px 6px; border-radius:6px; border:0; }
+main { max-width:1280px; margin:24px auto; padding:0 24px; }
+h1 { font-size:24px; margin:0 0 16px; } h2 { font-size:18px; margin:28px 0 10px; }
+.karte { background:#fff; border:1px solid var(--rand); border-radius:10px; padding:18px; margin-bottom:18px; }
+.kacheln { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:18px; }
+.kachel { background:#fff; border:1px solid var(--rand); border-radius:10px; padding:14px 16px; }
+.kachel .zahl { font-size:28px; font-weight:700; } .kachel .text { color:#5a6878; font-size:13px; }
+.kachel.warn .zahl { color: var(--gelb); }
+table { width:100%; border-collapse:collapse; background:#fff; }
+th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--rand); vertical-align:middle; }
+th { background: var(--hell); font-size:13px; color:#38475a; }
+tr:hover td { background:#fafcfe; }
+a { color: var(--blau); }
+.balken { background:#e4e9ef; border-radius:6px; height:10px; width:140px; overflow:hidden; display:inline-block; vertical-align:middle; }
+.balken span { display:block; height:100%; background: var(--gruen); }
+.chip { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:600; }
+.chip.ok { background:#dcfae6; color:var(--gruen); } .chip.offen { background:#fef0c7; color:var(--gelb); }
+.chip.FEHLER { background:#fee4e2; color:var(--rot); } .chip.WARNUNG { background:#fef0c7; color:var(--gelb); } .chip.HINWEIS { background:#e0eaff; color:#3538cd; }
+.filter { display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin-bottom:16px; }
+.filter label, .formular label { display:flex; flex-direction:column; font-size:13px; color:#5a6878; gap:4px; }
+input, select { font:inherit; padding:6px 8px; border:1px solid #b9c4d0; border-radius:6px; background:#fff; }
+input.note { width:58px; }
+button, .knopf { font:inherit; background: var(--blau); color:#fff; border:0; border-radius:6px; padding:8px 14px; cursor:pointer; text-decoration:none; display:inline-block; }
+.knopf.zweit, button.zweit { background:#fff; color:var(--blau); border:1px solid var(--blau); }
+button.gefahr { background: var(--rot); }
+.formular { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+.meldung { padding:10px 14px; border-radius:8px; margin-bottom:14px; }
+.meldung.ok { background:#dcfae6; } .meldung.fehler { background:#fee4e2; }
+.leise { color:#6b7785; font-size:13px; }
+.zeile { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.fehlt { background:#fffaeb; }

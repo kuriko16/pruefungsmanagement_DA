@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titel %}Zuweisung{% endblock %}
+{% block inhalt %}
+<h1>Prüfer:innen, Beisitz und Prüfungstage zuweisen</h1>
+<form class="filter" method="get">
+  <label>Klasse<select name="klasse" onchange="this.form.submit()">
+    {% for k in klassen %}<option value="{{ k.id }}" {{ 'selected' if k.id == klasse_id }}>{{ k.name }}</option>{% endfor %}</select></label>
+</form>
+<p class="leise">Eine Zeile pro Fach. Die Auswahl gilt für alle Kandidat:innen der Klasse mit diesem Fach.
+Leere Felder ändern nichts. Einzelne Ausnahmen trägt man direkt beim Kandidaten ein.</p>
+
+{% macro aktuell(n, wert, ohne, gesamt) -%}
+  {% if n == 0 %}<span class="chip offen">fehlt bei {{ ohne }}</span>
+  {% elif n == 1 and ohne == 0 %}<span class="chip ok">{{ wert }}</span>
+  {% else %}<span class="chip offen">gemischt{% if ohne %}, {{ ohne }} fehlen{% endif %}</span>{% endif %}
+{%- endmacro %}
+
+<form method="post">
+  <input type="hidden" name="klasse" value="{{ klasse_id }}">
+  <table>
+    <tr><th>Art</th><th>Fach</th><th>Kand.</th><th>Prüfer:in</th><th>Beisitz</th><th>Prüfungstag</th></tr>
+    {% for g in gruppen %}
+    <tr>
+      <td>{{ 'schriftlich' if g.art == 'schriftlich' else 'mündlich' }}</td>
+      <td><b>{{ g.fach }}</b><input type="hidden" name="gruppe" value="{{ g.art }}|{{ g.fach }}"></td>
+      <td>{{ g.anzahl }}</td>
+      <td>{{ aktuell(g.n_pruefer, namen.get(g.pruefer_id), g.ohne_pruefer, g.anzahl) }}<br>
+        <select name="pruefer"><option value="">– nicht ändern –</option>
+        {% for l in lehrpersonen %}<option value="{{ l.id }}">{{ l.nachname }} {{ l.vorname }}</option>{% endfor %}</select></td>
+      <td>{% if g.art == 'muendlich' %}{{ aktuell(g.n_beisitz, namen.get(g.beisitz_id), g.ohne_beisitz, g.anzahl) }}<br>
+        <select name="beisitz"><option value="">– nicht ändern –</option>
+        {% for l in lehrpersonen %}<option value="{{ l.id }}">{{ l.nachname }} {{ l.vorname }}</option>{% endfor %}</select>
+        {% else %}<span class="leise">–</span><input type="hidden" name="beisitz" value="">{% endif %}</td>
+      <td>{{ aktuell(g.n_tag, g.tag and (g.tag[8:10] ~ '.' ~ g.tag[5:7] ~ '.' ~ g.tag[:4]), g.ohne_tag, g.anzahl) }}<br>
+        <input type="date" name="tag"></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="leise">Für diese Klasse gibt es noch keine Prüfungen.</td></tr>
+    {% endfor %}
+  </table>
+  <p class="zeile"><label class="zeile"><input type="checkbox" name="ueberschreiben" value="1"> bereits eingetragene Werte überschreiben</label></p>
+  <button>Zuweisung übernehmen</button>
+</form>
+{% endblock %}

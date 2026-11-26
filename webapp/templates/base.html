@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titel %}{% endblock %} · Prüfungsmanagement RDP</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <span class="logo">Prüfungsmanagement RDP</span>
+  <nav>
+    {# request.endpoint = Name der aktuellen Seite, damit der Menüpunkt hervorgehoben wird #}
+    {% for ziel, text in [('dashboard','Dashboard'),('kandidaten','Kandidat:innen'),('zuweisung','Zuweisung'),('lehrpersonen_seite','Lehrpersonen'),('import_seite','Import')] %}
+      <a href="{{ url_for(ziel) }}" class="{{ 'aktiv' if request.endpoint in (ziel, 'kandidat_detail' if ziel=='kandidaten' else '') }}">{{ text }}</a>
+    {% endfor %}
+    <a href="{{ url_for('export_uebersicht') }}">Export Excel ⤓</a>
+  </nav>
+  <form method="post" action="{{ url_for('jahr_waehlen') }}">
+    <select name="jahr" onchange="this.form.submit()" aria-label="Prüfungsjahr">
+      {% for j in jahre %}<option {{ 'selected' if j == jahr }}>{{ j }}</option>{% else %}<option>kein Jahr</option>{% endfor %}
+    </select>
+  </form>
+</header>
+<main>
+  {% for kategorie, text in get_flashed_messages(with_categories=true) %}
+    <div class="meldung {{ kategorie }}">{{ text }}</div>
+  {% endfor %}
+  {% block inhalt %}{% endblock %}
+</main>
+</body>
+</html>
