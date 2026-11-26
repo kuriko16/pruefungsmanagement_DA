@@ -5,21 +5,17 @@ bestehenden Imports (`backend/import_anmeldungen.py`). Läuft nur lokal, keine C
 
 ## Starten
 
-**Ohne Docker** (Python 3.10+):
+**Am einfachsten (Windows/Mac):** Doppelklick auf `START_Windows.bat` bzw. `START_Mac.command`
+(oder im Terminal `python start.py`). Beim ersten Mal wird eine eigene Python-Umgebung angelegt
+und Flask/openpyxl installiert (braucht einmal Internet), dann werden Demodaten geladen und der
+Browser öffnet http://localhost:8080. Voraussetzung: Python 3.10+ von python.org.
 
-```bash
-pip install -r requirements.txt
-python tools/demodaten.py --db     # einmalig: erfundene Demodaten laden
-python webapp/app.py               # dann im Browser http://localhost:5000
-```
+Demodaten neu erzeugen: `Demo_zuruecksetzen_Windows.bat` bzw. `python start.py --reset`.
 
-**Mit Docker:**
+**Mit Docker:** `docker compose up --build` → http://localhost:8080 (lädt beim ersten Start Demodaten).
 
-```bash
-docker compose up --build          # http://localhost:5000, lädt beim ersten Start Demodaten
-```
+**Händisch:** `pip install -r requirements.txt`, `python tools/demodaten.py --db`, `python webapp/app.py`.
 
-Neu anfangen: `data/pruefung.db` löschen und neu starten.
 Tests: `python -m pytest tests -q`
 
 ## Seiten

@@ -1,7 +1,7 @@
 """Weboberfläche (MVP) für das Prüfungsmanagementsystem – Teil Mikail Simsek.
 
-Start ohne Docker:   python webapp/app.py      -> http://localhost:5000
-Start mit Docker:    docker compose up         -> http://localhost:5000
+Start am einfachsten: start.py (bzw. START_Windows.bat / START_Mac.command) -> http://localhost:8080
+Start mit Docker:    docker compose up                                      -> http://localhost:8080
 
 Aufbau: Flask liefert HTML-Seiten aus (Templates in webapp/templates). Jede Funktion mit
 @app.route(...) ist eine Seite bzw. ein Formular-Ziel. Die Daten liegen in SQLite
@@ -13,6 +13,7 @@ MS-07 (Import/Export per Button), MS-08 (Suche/Filter), MS-09 (Dashboard).
 """
 import collections
 import io
+import os
 import sys
 import tempfile
 from datetime import date
@@ -404,5 +405,6 @@ def export_uebersicht():
 db.initialisieren()
 
 if __name__ == "__main__":
-    # host 0.0.0.0, damit es auch im Docker-Container erreichbar ist
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    # Port 8080 statt 5000, weil macOS den Port 5000 für AirPlay belegt.
+    # host 0.0.0.0, damit es auch im Docker-Container erreichbar ist.
+    app.run(host=os.environ.get("PM_HOST", "127.0.0.1"), port=int(os.environ.get("PORT", 8080)), debug=False)
