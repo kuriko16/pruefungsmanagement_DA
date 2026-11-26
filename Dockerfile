@@ -7,6 +7,6 @@ COPY backend backend
 COPY webapp webapp
 COPY tools tools
 ENV PM_DB=/app/data/pruefung.db PM_HOST=0.0.0.0
-EXPOSE 8080
+EXPOSE 9094
 # DEMO=1: beim ersten Start erfundene Demodaten laden, wenn noch keine Datenbank existiert
 CMD ["sh", "-c", "if [ \"$DEMO\" = \"1\" ] && [ ! -f \"$PM_DB\" ]; then python tools/demodaten.py --db; fi; python webapp/app.py"]

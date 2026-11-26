@@ -1,7 +1,7 @@
 """Weboberfläche (MVP) für das Prüfungsmanagementsystem – Teil Mikail Simsek.
 
-Start am einfachsten: start.py (bzw. START_Windows.bat / START_Mac.command) -> http://localhost:8080
-Start mit Docker:    docker compose up                                      -> http://localhost:8080
+Start am einfachsten: start.py (bzw. START_Windows.bat / START_Mac.command) -> http://localhost:9094
+Start mit Docker:    docker compose up                                      -> http://localhost:9094
 
 Aufbau: Flask liefert HTML-Seiten aus (Templates in webapp/templates). Jede Funktion mit
 @app.route(...) ist eine Seite bzw. ein Formular-Ziel. Die Daten liegen in SQLite
@@ -405,6 +405,6 @@ def export_uebersicht():
 db.initialisieren()
 
 if __name__ == "__main__":
-    # Port 8080 statt 5000, weil macOS den Port 5000 für AirPlay belegt.
+    # Port 9094 statt 5000, weil macOS den Port 5000 für AirPlay belegt.
     # host 0.0.0.0, damit es auch im Docker-Container erreichbar ist.
-    app.run(host=os.environ.get("PM_HOST", "127.0.0.1"), port=int(os.environ.get("PORT", 8080)), debug=False)
+    app.run(host=os.environ.get("PM_HOST", "127.0.0.1"), port=int(os.environ.get("PORT", 9094)), debug=False)

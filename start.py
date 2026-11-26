@@ -5,7 +5,7 @@ Was passiert:
   1. Beim ersten Mal: eigene Python-Umgebung (.venv) anlegen und Flask + openpyxl installieren
      (braucht einmal Internet, danach geht alles offline)
   2. Wenn noch keine Datenbank da ist: erfundene Demodaten laden
-  3. Browser öffnen und die Oberfläche starten (http://localhost:8080)
+  3. Browser öffnen und die Oberfläche starten (http://localhost:9094)
 
 Aufruf:  python start.py            normal starten
          python start.py --reset    Demodaten neu erzeugen (Datenbank wird gelöscht!)
@@ -24,7 +24,7 @@ ORDNER = Path(__file__).resolve().parent
 VENV = ORDNER / ".venv"
 PY = VENV / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 DB = ORDNER / "data" / "pruefung.db"
-PORT = os.environ.get("PORT", "8080")
+PORT = os.environ.get("PORT", "9094")
 
 
 def schritt(text):
