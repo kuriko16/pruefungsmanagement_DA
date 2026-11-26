@@ -398,7 +398,7 @@ def export_uebersicht():
     puffer.seek(0)
     kurz = jahr.replace("/", "_").replace("20", "", 1) if jahr else "leer"
     return send_file(puffer, as_attachment=True,
-                     download_name=f"Übersicht_Reife_und_Diplomprüfung_{kurz}.xlsx",
+                     download_name=f"Uebersicht_Reife_und_Diplompruefung_{kurz}.xlsx",
                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
