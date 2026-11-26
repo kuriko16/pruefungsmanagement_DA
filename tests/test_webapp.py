@@ -21,7 +21,7 @@ def client():
     sys.path[:0] = [str(PROJEKT / "webapp"), str(PROJEKT / "tools"), str(PROJEKT / "backend")]
     import demodaten
     import app as webapp
-    dateien = [demodaten.schreibe_xlsx(k, demodaten.erzeuge_klasse(k, demodaten.random.Random(1), iter(range(10000001, 10099999))))
+    dateien = [demodaten.schreibe_xlsx(k, demodaten.erzeuge_klasse(k, demodaten.random.Random(1), iter(range(10000001, 10099999))), Path(tmp))
                for k in demodaten.KLASSEN]
     webapp.app.config["TESTING"] = True
     c = webapp.app.test_client()

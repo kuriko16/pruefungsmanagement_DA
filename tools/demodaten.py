@@ -104,7 +104,7 @@ def erzeuge_klasse(klasse, rnd, nummern):
     return zeilen
 
 
-def schreibe_xlsx(klasse, zeilen):
+def schreibe_xlsx(klasse, zeilen, ordner=AUSGABE):
     """Gleicher Aufbau wie der eduFLOW-Export: zwei Blätter, Kopfzeile = Feldnamen."""
     wb = Workbook()
     ws = wb.active
@@ -116,8 +116,8 @@ def schreibe_xlsx(klasse, zeilen):
     ws2.append(["Nachname", "Vorname", "Personen-ID", "Geburtsdatum"])
     for z in zeilen:
         ws2.append([z["Nachname"], z["Vorname"], z["Personen-ID"], z["Geburtsdatum"]])
-    AUSGABE.mkdir(parents=True, exist_ok=True)
-    pfad = AUSGABE / f"DEMO_Anmeldung_{klasse}.xlsx"
+    ordner.mkdir(parents=True, exist_ok=True)
+    pfad = ordner / f"DEMO_Anmeldung_{klasse}.xlsx"
     wb.save(pfad)
     return pfad
 
