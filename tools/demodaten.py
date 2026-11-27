@@ -47,12 +47,12 @@ LEHRPERSONEN = [("Aschauer", "Martin", "ASC"), ("Bichler", "Karin", "BIC"), ("Da
                 ("Nowak", "Georg", "NOW"), ("Oberhauser", "Ines", "OBE")]
 
 # Klassen wie in den echten Vorlagen, Schwerpunkt bestimmt das Wahlfach-Feld.
-# Die Wahlfächer je Klasse sind die Werte, die in den echten Anmeldedateien (Blatt "Optionenwahl")
-# vorkommen. Für 5AHWIM kam "Ethik" dort nicht vor, ob es erlaubt ist, ist noch zu klären.
+# Die Wahlfächer je Klasse sind die Werte aus den echten Anmeldedateien (Blatt "Optionenwahl").
+# Ethik ist in allen drei Klassen wählbar.
 GGP = "Geografie, Geschichte und Politische Bildung"
 KLASSEN = {
     "5AHWIM": ("Maschinenbau", "PM_WF_MB",
-               ["Religion", "Naturwissenschaften", GGP, "Werkstoff- und Fertigungstechnik"]),
+               ["Religion", "Ethik", "Naturwissenschaften", GGP, "Werkstoff- und Fertigungstechnik"]),
     "5BHWII": ("Betriebsinformatik", "PM_WF_BI",
                ["Religion", "Ethik", "Naturwissenschaften", GGP,
                 "Softwareentwicklung und Projektmanagement / Netzwerke und Embedded Software"]),

@@ -30,12 +30,12 @@ Jeder Fall ändert genau eine Zeile einer sonst fehlerfreien Klasse (R02: zwei Z
 | R07 | Warnung | 5BHWII | 4 | 90000020000014 | Tippfehler in der Domain: `studnet.tgm.ac.at` |
 | R08 | Hinweis | 5BHWII | 6 | 90000020000016 | Leerzeichen am Rand bei Nachname und Vorname |
 | R09 | Fehler | 5BHWII | 8 | 90000020000018 | Klausurart passt nicht zur Zahl der Fächer |
-| R10 | Warnung | 5CHWIL | 3 | 90000020000026 | Klasse „5CHWI“ passt nicht zum Dateinamen 5CHWIL |
-| R11 | Warnung | 5CHWIL | 5 | 90000020000028 | Geburtsdatum im Blatt „Ergebnisse-Optionsfelder“ um einen Tag verschoben |
-| R12 | Warnung | 5CHWIL | 7 | 90000020000030 | Betreuer\*in als „Nachname Vorname“, der Rest der Gruppe als „Vorname Nachname“. Gemeldet wird die ganze Gruppe mit diesem Titel. |
-| R13 | Warnung | 5CHWIL | 9 | 90000020000032 | Titel der Diplomarbeit fehlt |
+| R10 | Warnung | 5CHWIL | 3 | 90000020000025 | Klasse „5CHWI“ passt nicht zum Dateinamen 5CHWIL |
+| R11 | Warnung | 5CHWIL | 5 | 90000020000027 | Geburtsdatum im Blatt „Ergebnisse-Optionsfelder“ um einen Tag verschoben |
+| R12 | Warnung | 5CHWIL | 7 | 90000020000029 | Betreuer\*in als „Nachname Vorname“, der Rest der Gruppe als „Vorname Nachname“. Gemeldet wird die ganze Gruppe mit diesem Titel. |
+| R13 | Warnung | 5CHWIL | 9 | 90000020000031 | Titel der Diplomarbeit fehlt |
 
-Ergebnis: 35 Zeilen gelesen, 30 importiert. Nicht importiert werden die Fälle R01, R02 (beide Zeilen), R05 und R09.
+Ergebnis: 36 Zeilen gelesen, 31 importiert. Nicht importiert werden die Fälle R01, R02 (beide Zeilen), R05 und R09.
 Die aktuelle Liste gibt `python tools/demodaten.py --testfaelle` auch selbst aus. Ändert sich der Generator, die Tabelle hier nachziehen.
 
 ## Format (wie der eduFLOW-Export)
@@ -52,11 +52,11 @@ Die aktuelle Liste gibt `python tools/demodaten.py --testfaelle` auch selbst aus
 
 | Klasse | Schwerpunkt | Feld | Wahlfächer |
 | --- | --- | --- | --- |
-| 5AHWIM | Maschinenbau | PM_WF_MB | Religion, Naturwissenschaften, Geografie, Geschichte und Politische Bildung, Werkstoff- und Fertigungstechnik |
+| 5AHWIM | Maschinenbau | PM_WF_MB | Religion, Ethik, Naturwissenschaften, Geografie, Geschichte und Politische Bildung, Werkstoff- und Fertigungstechnik |
 | 5BHWII | Betriebsinformatik | PM_WF_BI | Religion, Ethik, Naturwissenschaften, Geografie, Geschichte und Politische Bildung, Softwareentwicklung und Projektmanagement / Netzwerke und Embedded Software |
 | 5CHWIL | Logistik | PM_WF_LOG | Religion, Ethik, Naturwissenschaften, Geografie, Geschichte und Politische Bildung, Logistik |
 
-PM_SPF ist in allen Klassen „Betriebstechnik/Unternehmensführung und Wirtschaftsrecht“. **Offen:** In den echten 5AHWIM-Daten kam Ethik nicht vor. Ob es dort wählbar ist, bitte klären.
+PM_SPF ist in allen Klassen „Betriebstechnik/Unternehmensführung und Wirtschaftsrecht“. Ethik ist in allen drei Klassen wählbar.
 
 ## Diplomarbeiten (JP-05) und Noten (JP-06): Formatvorschlag
 
