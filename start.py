@@ -53,6 +53,12 @@ def main():
         schritt("Demodaten werden erzeugt und importiert ...")
         subprocess.check_call([str(PY), str(ORDNER / "tools" / "demodaten.py"), "--db"], cwd=ORDNER)
 
+    # Julians Testdateien (ein Fehler je Prüfregel) für die Import-Vorführung bereitlegen
+    if not (ORDNER / "data" / "dummy").exists():
+        schritt("Testdateien für den Import werden erzeugt (data/dummy) ...")
+        subprocess.check_call([str(PY), str(ORDNER / "tools" / "demodaten.py"), "--testfaelle"], cwd=ORDNER,
+                              stdout=subprocess.DEVNULL)
+
     # 3) Browser kurz nach dem Start öffnen
     url = f"http://localhost:{PORT}"
     threading.Thread(target=lambda: (time.sleep(2), webbrowser.open(url)), daemon=True).start()
