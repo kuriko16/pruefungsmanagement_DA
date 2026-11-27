@@ -216,7 +216,15 @@ def schreibe_csv(name: str, kopf, zeilen) -> None:
         w.writerows(zeilen)
 
 
-def main() -> None:
+def main(ordner: Path | None = None) -> None:
+    """Schreibt alle Testdateien nach `ordner` (Standard: dieser Ordner).
+
+    Die Tests übergeben einen Temp-Ordner, damit eine in Excel geöffnete Datei
+    hier nie überschrieben werden muss (unter Windows wäre sie gesperrt)."""
+    global OUT
+    if ordner is not None:
+        OUT = Path(ordner)
+        OUT.mkdir(parents=True, exist_ok=True)
     for klasse, zeilen in SCHUELER.items():
         schreibe_klasse(klasse, zeilen)
     gueltige_a = [z for z in SCHUELER[A] if not z["Erw. Daten 1"]]

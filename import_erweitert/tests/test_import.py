@@ -25,8 +25,25 @@ KLASSEN = [TD / f"anmeldung_{k}.xlsx" for k in ("5AHWIM", "5BHWII", "5CHWIL")]
 LANG = TD / "anmeldung_5AHWIM_langformat.xlsx"
 
 
+_TMP = None
+
+
 def setUpModule():
-    erzeuge_dummy.main()  # Excel-Testdaten frisch erzeugen (nicht im Repository)
+    """Testdaten frisch in einen Temp-Ordner schreiben.
+
+    So stören in Excel geöffnete Dateien in testdaten/ die Tests nicht."""
+    global _TMP, TD, LP, SOK, NOT, KLASSEN, LANG
+    _TMP = tempfile.TemporaryDirectory()
+    TD = Path(_TMP.name)
+    erzeuge_dummy.main(TD)
+    LP, SOK, NOT = TD / "lehrpersonen_dummy.csv", TD / "sokrates_export_dummy.csv", TD / "noten_dummy.csv"
+    KLASSEN = [TD / f"anmeldung_{k}.xlsx" for k in ("5AHWIM", "5BHWII", "5CHWIL")]
+    LANG = TD / "anmeldung_5AHWIM_langformat.xlsx"
+
+
+def tearDownModule():
+    erzeuge_dummy.OUT = Path(erzeuge_dummy.__file__).resolve().parent
+    _TMP.cleanup()
 
 
 def pid(n: int) -> str:
