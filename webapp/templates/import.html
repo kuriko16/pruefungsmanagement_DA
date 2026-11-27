@@ -26,7 +26,7 @@
     {% if e.meldungen %}
     <table>
       <tr><th>Schwere</th><th>Regel</th><th>Personen-ID</th><th>Meldung</th></tr>
-      {% for m in e.meldungen|sort(attribute='schwere') %}
+      {% for m in e.meldungen %}
       <tr><td><span class="chip {{ m.schwere }}">{{ m.schwere }}</span></td><td>{{ m.regel }}</td><td class="leise">{{ m.personen_id or '–' }}</td><td>{{ m.text }}</td></tr>
       {% endfor %}
     </table>

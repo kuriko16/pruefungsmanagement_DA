@@ -374,6 +374,9 @@ def import_seite():
                     gelesen, importiert, meldungen = import_anmeldungen.importiere_datei(
                         con, pfad, jahr, anzeigename=datei.filename)
                     zaehler = collections.Counter(m.schwere for m in meldungen)
+                    # Wichtigstes zuerst: Fehler, dann Warnungen, dann Hinweise, jeweils nach Regel
+                    reihenfolge = {"FEHLER": 0, "WARNUNG": 1, "HINWEIS": 2}
+                    meldungen = sorted(meldungen, key=lambda m: (reihenfolge[m.schwere], m.regel))
                     ergebnisse.append({"datei": datei.filename, "gelesen": gelesen, "importiert": importiert,
                                        "zaehler": zaehler, "meldungen": meldungen})
                 except Exception as fehler:  # z. B. falsches Blatt oder kaputte Datei
