@@ -27,7 +27,7 @@ Tests: `python -m pytest tests -q`
 | Kandidat (Detail) | Stammdaten bearbeiten, DA-Betreuung aus Stammdaten wählen, pro Fach Prüfer:in, Beisitz, Prüfungstag, JN/MP/GN eintragen, Anmeldung löschen; Import-Meldungen zur Person werden angezeigt | MS-02, MS-03, MS-04, MS-06 |
 | Zuweisung | Pro Klasse und Fach Prüfer:in, Beisitz und Prüfungstag für alle auf einmal setzen | MS-02, MS-03 |
 | Lehrpersonen | Stammdaten anlegen, deaktivieren, löschen (nur ohne Zuweisungen) | SB-04 |
-| Import | eduFLOW-Anmeldungen hochladen, Prüfprotokoll R01–R13 wird angezeigt | MS-07, JP-01, JP-07 |
+| Import | eduFLOW-Anmeldungen hochladen, Prüfprotokoll R01–R13 wird angezeigt (zum Testen: Julians Dateien in `data/dummy/`) | MS-07, JP-01, JP-07 |
 | Export Excel | „Übersicht Reife- und Diplomprüfung“ im Aufbau der Vorlage, ein Blatt pro Klasse | MS-07, UE-05 |
 
 ## Änderungen an gemeinsamen Dateien
