@@ -27,9 +27,11 @@ from export_uebersicht import erstelle_uebersicht
 # Den bestehenden Import aus backend/ einbinden (gleicher Code wie auf der Kommandozeile)
 sys.path.insert(0, str(db.PROJEKT / "backend"))
 import import_anmeldungen  # noqa: E402
+from dokumente_routen import dokumente, ausgabe  # noqa: E402
 
 app = Flask(__name__)
 app.secret_key = "nur-lokal"  # nötig für flash()-Meldungen; das System läuft nur lokal
+app.register_blueprint(dokumente)
 
 NOTEN = [1, 2, 3, 4, 5]
 
@@ -374,9 +376,6 @@ def import_seite():
                     gelesen, importiert, meldungen = import_anmeldungen.importiere_datei(
                         con, pfad, jahr, anzeigename=datei.filename)
                     zaehler = collections.Counter(m.schwere for m in meldungen)
-                    # Wichtigstes zuerst: Fehler, dann Warnungen, dann Hinweise, jeweils nach Regel
-                    reihenfolge = {"FEHLER": 0, "WARNUNG": 1, "HINWEIS": 2}
-                    meldungen = sorted(meldungen, key=lambda m: (reihenfolge[m.schwere], m.regel))
                     ergebnisse.append({"datei": datei.filename, "gelesen": gelesen, "importiert": importiert,
                                        "zaehler": zaehler, "meldungen": meldungen})
                 except Exception as fehler:  # z. B. falsches Blatt oder kaputte Datei
@@ -392,17 +391,7 @@ def import_seite():
 
 @app.get("/export/uebersicht")
 def export_uebersicht():
-    con = db.verbinden()
-    jahr, _ = aktuelles_jahr(con)
-    arbeitsmappe = erstelle_uebersicht(con, jahr)
-    con.close()
-    puffer = io.BytesIO()
-    arbeitsmappe.save(puffer)
-    puffer.seek(0)
-    kurz = jahr.replace("/", "_").replace("20", "", 1) if jahr else "leer"
-    return send_file(puffer, as_attachment=True,
-                     download_name=f"Uebersicht_Reife_und_Diplompruefung_{kurz}.xlsx",
-                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    return ausgabe("uebersicht", "xlsx")
 
 
 db.initialisieren()

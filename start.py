@@ -12,6 +12,7 @@ Aufruf:  python start.py            normal starten
 Beenden: Fenster schließen oder Strg+C
 """
 import os
+import hashlib
 import subprocess
 import sys
 import threading
@@ -40,11 +41,12 @@ def main():
         schritt("Erster Start: Python-Umgebung wird angelegt (dauert ca. 1 Minute) ...")
         venv.create(VENV, with_pip=True)
     fertig = VENV / "installiert.txt"
-    if not fertig.exists():
-        schritt("Pakete werden installiert (Flask, openpyxl) ...")
+    paketstand = hashlib.sha256((ORDNER / "requirements.txt").read_bytes()).hexdigest()
+    if not fertig.exists() or fertig.read_text() != paketstand:
+        schritt("Pakete werden installiert bzw. aktualisiert (Flask, openpyxl, ReportLab) ...")
         subprocess.check_call([str(PY), "-m", "pip", "install", "--disable-pip-version-check", "-q",
                                "-r", str(ORDNER / "requirements.txt")])
-        fertig.write_text("ok")
+        fertig.write_text(paketstand)
 
     # 2) Demodaten (nur erfundene Namen)
     if "--reset" in sys.argv and DB.exists():
@@ -52,12 +54,6 @@ def main():
     if not DB.exists():
         schritt("Demodaten werden erzeugt und importiert ...")
         subprocess.check_call([str(PY), str(ORDNER / "tools" / "demodaten.py"), "--db"], cwd=ORDNER)
-
-    # Julians Testdateien (ein Fehler je Prüfregel) für die Import-Vorführung bereitlegen
-    if not (ORDNER / "data" / "dummy").exists():
-        schritt("Testdateien für den Import werden erzeugt (data/dummy) ...")
-        subprocess.check_call([str(PY), str(ORDNER / "tools" / "demodaten.py"), "--testfaelle"], cwd=ORDNER,
-                              stdout=subprocess.DEVNULL)
 
     # 3) Browser kurz nach dem Start öffnen
     url = f"http://localhost:{PORT}"

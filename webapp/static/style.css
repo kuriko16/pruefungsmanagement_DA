@@ -38,3 +38,9 @@ button.gefahr { background: var(--rot); }
 .leise { color:#6b7785; font-size:13px; }
 .zeile { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 .fehlt { background:#fffaeb; }
+.dokument-karten { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; }
+.dokument-karten h2 { margin-top:0; }
+.dokument-karten button { margin:5px 8px 0 0; }
+button:disabled { opacity:.5; cursor:not-allowed; }
+@media (max-width:1100px) { header { height:auto; min-height:56px; flex-wrap:wrap; padding:12px 18px; gap:12px; } header nav { line-height:2; } }
+

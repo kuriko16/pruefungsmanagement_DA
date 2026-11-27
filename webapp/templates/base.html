@@ -14,7 +14,7 @@
     {% for ziel, text in [('dashboard','Dashboard'),('kandidaten','Kandidat:innen'),('zuweisung','Zuweisung'),('lehrpersonen_seite','Lehrpersonen'),('import_seite','Import')] %}
       <a href="{{ url_for(ziel) }}" class="{{ 'aktiv' if request.endpoint in (ziel, 'kandidat_detail' if ziel=='kandidaten' else '') }}">{{ text }}</a>
     {% endfor %}
-    <a href="{{ url_for('export_uebersicht') }}">Export Excel ⤓</a>
+    <a href="{{ url_for('dokumente.seite') }}" class="{{ 'aktiv' if request.endpoint == 'dokumente.seite' }}">Prüfungsunterlagen</a>
   </nav>
   <form method="post" action="{{ url_for('jahr_waehlen') }}">
     <select name="jahr" onchange="this.form.submit()" aria-label="Prüfungsjahr">
@@ -30,3 +30,4 @@
 </main>
 </body>
 </html>
+

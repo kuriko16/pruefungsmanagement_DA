@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block titel %}Prüfungsunterlagen{% endblock %}
+{% block inhalt %}
+<h1>Prüfungsunterlagen · {{ jahr or 'kein Prüfungsjahr' }}</h1>
+<p>Vorhandene Prüfungsdaten als Excel oder PDF ausgeben. Die Betreuung wird in der Kandidatenansicht manuell zugewiesen.</p>
+{% if not klassen %}
+<div class="karte">Für dieses Prüfungsjahr sind noch keine Klassen vorhanden.</div>
+{% else %}
+<form action="{{ url_for('dokumente.download') }}" method="get">
+  <div class="karte formular">
+    <label>Klasse<select name="klasse"><option value="">Alle Klassen (Übersicht und PDF-Unterlagen)</option>
+      {% for k in klassen %}<option value="{{ k.id }}" {{ 'selected' if request.args.get('klasse') == k.id|string }}>{{ k.name }}</option>{% endfor %}
+    </select></label>
+    <label>Excel-Vorlagenversion<select name="version">
+      {% for v in versionen %}<option>{{ v }}</option>{% else %}<option value="">noch keine Vorlage</option>{% endfor %}
+    </select></label>
+  </div>
+  {% if not versionen %}<p class="meldung fehler">Für dieses Jahr fehlt noch eine Vorlagenversion. Die PDF-Unterlagen können trotzdem erzeugt werden.</p>{% endif %}
+  <div class="dokument-karten">
+    <section class="karte">
+      <h2>RDP-Übersicht</h2>
+      <p>Eure Originalvorlage, befüllt mit Namen, Fächern und zugewiesenen Lehrpersonen. Das Excel-Detailblatt zeigt jede einzelne Zuordnung.</p>
+      <button name="ausgabe" value="uebersicht.xlsx" {{ 'disabled' if not versionen }}>Excel herunterladen</button>
+      <button class="zweit" name="ausgabe" value="uebersicht.pdf" formtarget="_blank" {{ 'disabled' if not versionen or not libreoffice }}>PDF öffnen / drucken</button>
+    </section>
+    <section class="karte">
+      <h2>Zeitplan mündliche RDP</h2>
+      <p>Eure zweite Excel-Vorlage mit Präsentation, Prüfungsblöcken und Vorbereitungsaufsicht. Bitte eine einzelne Klasse auswählen.</p>
+      <p class="leise">Ausfüllbare Vorlage: Geplante Beginnzeiten und Dauern fehlen noch. Es werden keine Termine berechnet oder erfunden.</p>
+      <button name="ausgabe" value="zeitplan.xlsx" {{ 'disabled' if not versionen }}>Excel-Vorlage herunterladen</button>
+      <button class="zweit" name="ausgabe" value="zeitplan.pdf" formtarget="_blank" {{ 'disabled' if not versionen or not libreoffice }}>Leervorlage als PDF</button>
+    </section>
+    <section class="karte">
+      <h2>Prüfungszettel</h2>
+      <p>Ein Zettel pro Prüfung mit Kandidat:in, Fach, Zuweisungen, Prüfungstag und vorhandenen Noten.</p>
+      <p class="leise">Entwurf: Die endgültige Formularvorlage fehlt noch.</p>
+      <button name="ausgabe" value="pruefungszettel.pdf" formtarget="_blank">PDF öffnen / drucken</button>
+    </section>
+    <section class="karte">
+      <h2>Kommissionsübersicht</h2>
+      <p>Prüfungen, Kandidat:innen, Prüfer:innen und Beisitz übersichtlich pro Klasse.</p>
+      <p class="leise">Entwurf: Die endgültige Formularvorlage fehlt noch.</p>
+      <button name="ausgabe" value="kommission.pdf" formtarget="_blank">PDF öffnen / drucken</button>
+    </section>
+  </div>
+</form>
+{% endif %}
+{% if not libreoffice %}<p class="leise">PDF-Kopien der beiden Excel-Vorlagen benötigen LibreOffice auf diesem Rechner. Die beiden anderen PDF-Buttons funktionieren ohne LibreOffice.</p>{% endif %}
+<p class="leise">Drucken: Im geöffneten PDF das Druckersymbol oder Strg+P verwenden. Serienbriefe folgen, sobald die Word-Vorlagen vorliegen.</p>
+{% endblock %}

@@ -3,6 +3,7 @@ data/input/
 data/*.db
 data/fehlerbericht*.md
 *.xlsx
+!vorlagen/**/*.xlsx
 *.xls
 *.csv.bak
 
@@ -17,3 +18,5 @@ venv/
 .idea/
 .DS_Store
 data/demo/
+data/ausgabe/
+.pytest_cache/
