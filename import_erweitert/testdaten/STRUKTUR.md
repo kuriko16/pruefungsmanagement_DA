@@ -46,12 +46,12 @@ In der echten Datei stehen zusätzlich Geburtsdatum, „Gesehen am“ und „Aus
 | PS_Deutsch + PS_Englisch | Deutsch + Englisch (nur bei 4+2) |
 | PM_D / PM_E | mündlich die jeweils **andere** Sprache (nur bei 3+3) |
 | PM_SPF | Betriebstechnik/Unternehmensführung und Wirtschaftsrecht (alle Klassen) |
-| PM_WF_MB (5AHWIM) | Religion · Werkstoff- und Fertigungstechnik · Naturwissenschaften · Geografie, Geschichte und Politische Bildung |
+| PM_WF_MB (5AHWIM) | Religion · Ethik · Werkstoff- und Fertigungstechnik · Naturwissenschaften · Geografie, Geschichte und Politische Bildung |
 | PM_WF_BI (5BHWII) | Religion · Ethik · Naturwissenschaften · Geografie, Geschichte und Politische Bildung · Softwareentwicklung und Projektmanagement / Netzwerke und Embedded Software |
 | PM_WF_LOG (5CHWIL) | Religion · Ethik · Naturwissenschaften · Geografie, Geschichte und Politische Bildung · Logistik |
 | Status | Abgeschlossen (sonst nicht fertig ausgefüllt) |
 
-**Unsicher:** Für 5AHWIM kam „Ethik“ in den Daten nicht vor. Ob Ethik dort erlaubt ist, bitte nachfragen. Im Code steht das in `backend/fachkonfig.py`.
+Ethik ist in allen drei Klassen wählbar (in den 5AHWIM-Daten kam es zufällig nicht vor). Im Code steht das in `backend/fachkonfig.py`.
 
 ## Exportdatei „Übersicht Reife- und Diplomprüfung“ (Zielformat, noch nicht gebaut)
 

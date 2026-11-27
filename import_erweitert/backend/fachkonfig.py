@@ -20,7 +20,7 @@ KLASSEN = {
     "5AHWIM": {
         "schwerpunkt": "Maschinenbau",
         "wahlfach_feld": "PM_WF_MB",
-        "wahlfaecher": {"Religion", "Werkstoff- und Fertigungstechnik", "Naturwissenschaften", GGP},
+        "wahlfaecher": {"Religion", "Ethik", "Werkstoff- und Fertigungstechnik", "Naturwissenschaften", GGP},
     },
     "5BHWII": {
         "schwerpunkt": "Betriebsinformatik",
