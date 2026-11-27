@@ -157,3 +157,10 @@ class ZielDB:
 
     def close(self) -> None:
         self.conn.close()
+
+    def __del__(self) -> None:
+        """Verbindung schließen, wenn das Objekt nicht mehr gebraucht wird (vermeidet ResourceWarning)."""
+        try:
+            self.conn.close()
+        except Exception:
+            pass
