@@ -13,7 +13,7 @@ Import-Prototyp (Startpunkt für Julian), der die eduFLOW-Anmeldedateien einlies
 | `data/input/` | Hier die Excel-Dateien ablegen. **Nicht ins Repository einchecken** (personenbezogene Daten) |
 | `docs/` | Platz für Analyse, ER-Diagramm, User Stories. Enthält `user_stories.csv` (48 Anforderungen) und `github-setup.md` (Anleitung für Repository und Project) |
 | `webapp/` | Weboberfläche (Flask): Dashboard, Kandidat:innen, Zuweisung, Noten, Import, Export. Anleitung: `docs/oberflaeche.md` |
-| `tools/demodaten.py` | Erzeugt erfundene Anmeldedateien im eduFLOW-Format für Demo und Tests |
+| `tools/demodaten.py` | Erzeugt erfundene Anmeldedateien im eduFLOW-Format für Demo und Tests. Mit `--testfaelle` mindestens ein Testfall je Prüfregel R01–R13, Liste in `docs/testdaten.md` |
 | `tools/create_github_issues.py` | Legt Labels, Meilensteine und Issues aus `docs/user_stories.csv` in GitHub an (zuerst Probelauf) |
 
 ## Ausprobieren
@@ -47,6 +47,8 @@ Das Skript kann mehrfach laufen: Kandidaten, Anmeldungen und Fächer werden aktu
 | R13 | Warnung | Titel der Diplomarbeit fehlt |
 
 Datensätze mit Schwere „Fehler" werden nicht importiert, alle anderen schon.
+
+Testdaten mit einem Fall je Regel: `python tools/demodaten.py --testfaelle`, siehe `docs/testdaten.md`. `tests/test_testfaelle.py` prüft automatisch, dass jede Regel anschlägt.
 
 ## Bekannte Lücken
 

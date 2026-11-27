@@ -15,6 +15,9 @@ Aufruf:
   python tools/demodaten.py                 -> nur Excel-Dateien in data/demo/ erzeugen
   python tools/demodaten.py --db            -> zusätzlich importieren, Lehrpersonen anlegen
                                                und einen Teil der Zuweisungen/Noten vorbefüllen
+  python tools/demodaten.py --testfaelle    -> Testdateien Dummy_Anmeldung_<Klasse>.xlsx in data/dummy/
+                                               mit mindestens einem Fall je Prüfregel R01-R13
+                                               (Liste der Fälle: docs/testdaten.md)
 """
 import argparse
 import random
@@ -27,6 +30,7 @@ from openpyxl import Workbook
 
 PROJEKT = Path(__file__).resolve().parents[1]
 AUSGABE = PROJEKT / "data" / "demo"
+AUSGABE_TEST = PROJEKT / "data" / "dummy"
 SCHULKENNZAHL = "900000"          # erfunden, keine echte Schulkennzahl
 JAHR = "2026/27"
 
@@ -42,13 +46,18 @@ LEHRPERSONEN = [("Aschauer", "Martin", "ASC"), ("Bichler", "Karin", "BIC"), ("Da
                 ("Kern", "Barbara", "KER"), ("Lutz", "Stefan", "LUT"), ("Mader", "Eva", "MAD"),
                 ("Nowak", "Georg", "NOW"), ("Oberhauser", "Ines", "OBE")]
 
-# Klassen wie in den echten Vorlagen, Schwerpunkt bestimmt das Wahlfach-Feld
+# Klassen wie in den echten Vorlagen, Schwerpunkt bestimmt das Wahlfach-Feld.
+# Die Wahlfächer je Klasse sind die Werte, die in den echten Anmeldedateien (Blatt "Optionenwahl")
+# vorkommen. Für 5AHWIM kam "Ethik" dort nicht vor, ob es erlaubt ist, ist noch zu klären.
+GGP = "Geografie, Geschichte und Politische Bildung"
 KLASSEN = {
-    "5AHWIM": ("Maschinenbau", "PM_WF_MB", "Maschinen- und Anlagentechnik"),
-    "5BHWII": ("Betriebsinformatik", "PM_WF_BI", "Softwareentwicklung und Projektmanagement / Netzwerke und Embedded Software"),
-    "5CHWIL": ("Logistik", "PM_WF_LOG", "Logistik und Supply Chain Management"),
+    "5AHWIM": ("Maschinenbau", "PM_WF_MB",
+               ["Religion", "Naturwissenschaften", GGP, "Werkstoff- und Fertigungstechnik"]),
+    "5BHWII": ("Betriebsinformatik", "PM_WF_BI",
+               ["Religion", "Ethik", "Naturwissenschaften", GGP,
+                "Softwareentwicklung und Projektmanagement / Netzwerke und Embedded Software"]),
+    "5CHWIL": ("Logistik", "PM_WF_LOG", ["Religion", "Ethik", "Naturwissenschaften", GGP, "Logistik"]),
 }
-WAHLFAECHER = ["Religion", "Ethik", "Geografie, Geschichte und Politische Bildung", "Naturwissenschaften"]
 SPF = "Betriebstechnik/Unternehmensführung und Wirtschaftsrecht"
 DA_THEMEN = ["Digitale Lagerverwaltung für einen Fahrradhändler", "Energiemonitoring in der Schulwerkstatt",
              "Webshop-Optimierung für ein Familienunternehmen", "Automatisierte Dienstplanung im Pflegeheim",
@@ -62,8 +71,9 @@ KOPF = ["Nachname", "Vorname", "Klasse", "Empfänger*in E-Mail", "Personen-ID", 
         "PM_WF_MB", "Kenntnisnahme nächster Termin", "Verbindliche Anmeldung"]
 
 
-def erzeuge_klasse(klasse, rnd, nummern):
-    schwerpunkt, wf_feld, wf_fach = KLASSEN[klasse]
+def erzeuge_klasse(klasse, rnd, nummern, auffaellig=True):
+    """Zeilen einer Klasse erzeugen. auffaellig=False liefert saubere Daten (Basis für die Testfälle)."""
+    schwerpunkt, wf_feld, wahlfaecher = KLASSEN[klasse]
     zeilen = []
     themen = rnd.sample(DA_THEMEN, 3)
     betreuer = rnd.sample(LEHRPERSONEN, 3)
@@ -75,14 +85,17 @@ def erzeuge_klasse(klasse, rnd, nummern):
         b = betreuer[gruppe]
         z = dict.fromkeys(KOPF)
         z.update({
-            "Nachname": nn, "Vorname": vn, "Klasse": klasse, "Personen-ID": pid, "Personentyp": "Schüler*in",
+            # Personentyp im echten Export: "S" (Schüler*in)
+            "Nachname": nn, "Vorname": vn, "Klasse": klasse, "Personen-ID": pid, "Personentyp": "S",
             "Empfänger*in E-Mail": f"{vn[0].lower()}{nn.lower()}@student.tgm.ac.at".replace("ä", "ae").replace("ß", "ss"),
             "Geschlecht": rnd.choice(["männlich", "weiblich"]), "Geburtsdatum": geb.strftime("%d.%m.%Y"),
-            "Schulkennzahl": SCHULKENNZAHL, "Status": "Abgeschlossen", "Ausgefüllt am": "12.11.2026",
+            "Schulkennzahl": SCHULKENNZAHL, "Status": "Abgeschlossen",
+            "Gesehen am": f"12.11.2026 {8 + i % 6:02d}:{(7 * i) % 60:02d}:00",
+            "Ausgefüllt am": f"12.11.2026 {8 + i % 6:02d}:{(7 * i + 3) % 60:02d}:00",
             "Ausbildungsschwerpunkt": schwerpunkt, "Titel der Diplomarbeit:": themen[gruppe],
             "Diplomarbeitsbetreuer*in:": f"{b[1]} {b[0]}",
             "PS_AM": "Angewandte Mathematik", "PS_FT": "Fachtheorie", "PM_SPF": SPF,
-            wf_feld: rnd.choice(WAHLFAECHER + [wf_fach] * 3),
+            wf_feld: rnd.choice(wahlfaecher),
             "Kenntnisnahme nächster Termin": "ja", "Verbindliche Anmeldung": "ja",
         })
         if rnd.random() < 0.8:   # 3 schriftlich + 3 mündlich: eine Sprache schriftlich, die andere mündlich
@@ -95,6 +108,8 @@ def erzeuge_klasse(klasse, rnd, nummern):
             z["PS_Deutsch"], z["PS_Englisch"] = "Deutsch", "Englisch"
         zeilen.append(z)
 
+    if not auffaellig:
+        return zeilen
     # Absichtliche Auffälligkeiten (siehe Kopfkommentar)
     if klasse == "5AHWIM":
         zeilen[2]["Verbindliche Anmeldung"] = "nein"
@@ -104,8 +119,11 @@ def erzeuge_klasse(klasse, rnd, nummern):
     return zeilen
 
 
-def schreibe_xlsx(klasse, zeilen, ordner=AUSGABE):
-    """Gleicher Aufbau wie der eduFLOW-Export: zwei Blätter, Kopfzeile = Feldnamen."""
+def schreibe_xlsx(klasse, zeilen, ordner=AUSGABE, praefix="DEMO"):
+    """Gleicher Aufbau wie der eduFLOW-Export: zwei Blätter, Kopfzeile = Feldnamen.
+
+    Ein Eintrag "_geb_kontrolle" in einer Zeile setzt im Blatt "Ergebnisse-Optionsfelder"
+    ein anderes Geburtsdatum (Testfall R11)."""
     wb = Workbook()
     ws = wb.active
     ws.title = "Teilnehmer und Ergebnisse"
@@ -115,11 +133,73 @@ def schreibe_xlsx(klasse, zeilen, ordner=AUSGABE):
     ws2 = wb.create_sheet("Ergebnisse-Optionsfelder")
     ws2.append(["Nachname", "Vorname", "Personen-ID", "Geburtsdatum"])
     for z in zeilen:
-        ws2.append([z["Nachname"], z["Vorname"], z["Personen-ID"], z["Geburtsdatum"]])
+        ws2.append([z["Nachname"], z["Vorname"], z["Personen-ID"], z.get("_geb_kontrolle", z["Geburtsdatum"])])
     ordner.mkdir(parents=True, exist_ok=True)
-    pfad = ordner / f"DEMO_Anmeldung_{klasse}.xlsx"
+    pfad = ordner / f"{praefix}_Anmeldung_{klasse}.xlsx"
     wb.save(pfad)
     return pfad
+
+
+# ---------------------------------------------------------------------------
+# Testfälle: je Prüfregel mindestens ein absichtlich fehlerhafter Datensatz.
+# Jeder Fall ändert genau eine Zeile (R02: zwei Zeilen) einer sonst sauberen Klasse.
+# ---------------------------------------------------------------------------
+def _zwei_plus_drei(z):
+    """Klausurart umdrehen, Fächer bleiben -> Anzahl passt nicht mehr (R09)."""
+    drei = "3 schriftliche Klausuren und 3 mündliche Prüfungen"
+    z["Klausurart"] = "4 schriftliche Klausuren und 2 mündliche Prüfungen" if z["Klausurart"] == drei else drei
+
+
+def _r02(zeilen, i):
+    zeilen[i + 1]["Personen-ID"] = zeilen[i]["Personen-ID"]
+    zeilen[i + 1]["Geburtsdatum"] = zeilen[i]["Geburtsdatum"]   # sonst meldet R11 zusätzlich
+
+
+def _r12(zeilen, i):
+    # Die anderen Zeilen mit demselben Titel bleiben bei "Vorname Nachname"
+    vorname, nachname = zeilen[i]["Diplomarbeitsbetreuer*in:"].split(" ", 1)
+    zeilen[i]["Diplomarbeitsbetreuer*in:"] = f"{nachname} {vorname}"
+
+
+# (Klasse, Zeilenindex, Regel, Beschreibung, Änderung)
+TESTFAELLE = [
+    ("5AHWIM", 1, "R01", "Personen-ID fehlt", lambda zs, i: zs[i].update({"Personen-ID": None})),
+    ("5AHWIM", 3, "R02", "Personen-ID doppelt (diese und die nächste Zeile)", _r02),
+    ("5AHWIM", 6, "R03", "Personen-ID beginnt mit 910000 statt Schulkennzahl 900000",
+     lambda zs, i: zs[i].update({"Personen-ID": "910000" + zs[i]["Personen-ID"][6:]})),
+    ("5AHWIM", 7, "R04", "Status 'In Bearbeitung' statt 'Abgeschlossen'",
+     lambda zs, i: zs[i].update({"Status": "In Bearbeitung"})),
+    ("5AHWIM", 8, "R05", "Verbindliche Anmeldung 'nein'",
+     lambda zs, i: zs[i].update({"Verbindliche Anmeldung": "nein"})),
+    ("5BHWII", 1, "R06", "Kenntnisnahme nächster Termin leer",
+     lambda zs, i: zs[i].update({"Kenntnisnahme nächster Termin": None})),
+    ("5BHWII", 2, "R07", "Tippfehler in der E-Mail-Domain (studnet.tgm.ac.at)",
+     lambda zs, i: zs[i].update({"Empfänger*in E-Mail": zs[i]["Empfänger*in E-Mail"].replace("student", "studnet")})),
+    ("5BHWII", 4, "R08", "Leerzeichen am Rand bei Nachname und Vorname",
+     lambda zs, i: zs[i].update({"Nachname": " " + zs[i]["Nachname"], "Vorname": zs[i]["Vorname"] + " "})),
+    ("5BHWII", 6, "R09", "Klausurart passt nicht zur Zahl der Fächer", lambda zs, i: _zwei_plus_drei(zs[i])),
+    ("5CHWIL", 1, "R10", "Klasse '5CHWI' passt nicht zum Dateinamen 5CHWIL",
+     lambda zs, i: zs[i].update({"Klasse": "5CHWI"})),
+    ("5CHWIL", 3, "R11", "Geburtsdatum im Blatt 'Ergebnisse-Optionsfelder' um einen Tag verschoben",
+     lambda zs, i: zs[i].update({"_geb_kontrolle": (date(*map(int, reversed(zs[i]["Geburtsdatum"].split("."))))
+                                                    + timedelta(days=1)).strftime("%d.%m.%Y")})),
+    ("5CHWIL", 5, "R12", "Betreuer*in als 'Nachname Vorname', Rest der Gruppe 'Vorname Nachname'", _r12),
+    ("5CHWIL", 7, "R13", "Titel der Diplomarbeit fehlt",
+     lambda zs, i: zs[i].update({"Titel der Diplomarbeit:": None})),
+]
+
+
+def erzeuge_testdaten(seed=2026, ordner=AUSGABE_TEST):
+    """Testdateien erzeugen. Rückgabe: (Dateien, Liste der Fälle als (Klasse, Excel-Zeile, Personen-ID, Regel, Text))."""
+    rnd = random.Random(seed)
+    nummern = iter(range(20000001, 20099999))        # anderer Bereich als die Demodaten, keine Überschneidung
+    klassen = {k: erzeuge_klasse(k, rnd, nummern, auffaellig=False) for k in KLASSEN}
+    faelle = []
+    for klasse, i, regel, text, aendern in TESTFAELLE:
+        aendern(klassen[klasse], i)
+        faelle.append((klasse, i + 2, klassen[klasse][i]["Personen-ID"], regel, text))   # +2: Kopfzeile, ab 1 gezählt
+    dateien = [schreibe_xlsx(k, z, ordner, praefix="Dummy") for k, z in klassen.items()]
+    return dateien, faelle
 
 
 def befuelle_db(dateien):
@@ -169,7 +249,17 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--db", action="store_true", help="Demodaten auch in die Datenbank laden")
     ap.add_argument("--seed", type=int, default=2026, help="Zufallswert (gleicher Wert = gleiche Daten)")
+    ap.add_argument("--testfaelle", action="store_true",
+                    help="Testdateien mit einem Fall je Prüfregel in data/dummy/ erzeugen")
     args = ap.parse_args()
+    if args.testfaelle:
+        dateien, faelle = erzeuge_testdaten(args.seed)
+        for d in dateien:
+            print(f"erzeugt: {d.relative_to(PROJEKT)}")
+        print("\n| Regel | Klasse | Zeile | Personen-ID | Testfall |\n| --- | --- | --- | --- | --- |")
+        for klasse, zeile, pid, regel, text in faelle:
+            print(f"| {regel} | {klasse} | {zeile} | {pid or '(leer)'} | {text} |")
+        return
     rnd = random.Random(args.seed)
     nummern = iter(range(10000001, 10099999))
     dateien = [schreibe_xlsx(k, erzeuge_klasse(k, rnd, nummern)) for k in KLASSEN]

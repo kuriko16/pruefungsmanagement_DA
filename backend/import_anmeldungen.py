@@ -274,7 +274,7 @@ def main():
         gelesen, importiert, meldungen = importiere_datei(con, datei, args.jahr)
         results.append((Path(datei).name, gelesen, importiert, meldungen))
         zaehler = collections.Counter(m.schwere for m in meldungen)
-        print(f"{Path(datei).name}: {len(rows)} gelesen, {importiert} importiert, "
+        print(f"{Path(datei).name}: {gelesen} gelesen, {importiert} importiert, "
               f"{zaehler['FEHLER']} Fehler, {zaehler['WARNUNG']} Warnungen, {zaehler['HINWEIS']} Hinweise")
     write_report(args.report, results)
     print(f"Fehlerprotokoll: {args.report}")
